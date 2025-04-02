@@ -378,5 +378,8 @@ Paciente registrado exitosamente!
 Este proyecto está bajo licencia MIT. Consulte el archivo LICENSE para más detalles.
 
 ---
+🚨 **Estado del Ejercicio**  
+sin-Culminado.  
 
-✨ **Sistema desarrollado para optimizar la gestión médica con tecnología de punta** ✨
+👤 **Autor**  
+Jhorman Jesús Castellanos Morales  
