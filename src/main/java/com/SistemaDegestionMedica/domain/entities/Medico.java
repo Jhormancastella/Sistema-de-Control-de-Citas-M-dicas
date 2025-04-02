@@ -24,6 +24,10 @@ public class Medico {
         //TODO Auto-generated constructor stub
     }
 
+    public Medico(int int1, String string, String string2, int int2) {
+        //TODO Auto-generated constructor stub
+    }
+
     // Getters y Setters
     public int getId() {
         return id;
@@ -90,7 +94,7 @@ public class Medico {
         throw new UnsupportedOperationException("Unimplemented method 'setHorarioFin'");
     }
 
-    public float getEspecialidadId() {
+    public int getEspecialidadId() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getEspecialidadId'");
     }

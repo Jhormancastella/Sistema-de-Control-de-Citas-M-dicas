@@ -1,4 +1,4 @@
-package com.SistemaDegestionMedica.infrastructure.database;
+package com.SistemaDegestionMedica;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,10 +7,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.SistemaDegestionMedica.adapter.ui.CitaMenu;
 import com.SistemaDegestionMedica.domain.entities.Cita;
 import com.SistemaDegestionMedica.infrastructure.database.ConnectionDb;
 
@@ -54,7 +56,7 @@ public class MySQLCitaRepository implements CitaRepository {
     }
 
     @Override
-    public Optional<Cita> findById(int id) {
+    public Optional findById(int id) {
         String sql = "SELECT * FROM citas WHERE id = ?";
         
         try (Connection connection = connectionDb.getConexion();
@@ -111,6 +113,20 @@ public class MySQLCitaRepository implements CitaRepository {
     }
 
     @Override
+    public Cita update(CitaMenu citaMenu) {
+
+        Cita cita = new Cita();
+
+        cita.setId(citaMenu.getId());
+        cita.setPacienteId(citaMenu.getPacienteId());
+        cita.setMedicoId(citaMenu.getMedicoId());
+        cita.setFechaHora(citaMenu.getFechaHora());
+        cita.setEstado(citaMenu.getEstado());
+        
+        return update(cita);
+    }
+
+    @Override
     public void delete(int id) {
         String sql = "DELETE FROM citas WHERE id = ?";
         
@@ -142,6 +158,27 @@ public class MySQLCitaRepository implements CitaRepository {
             return false;
         } catch (SQLException e) {
             throw new RuntimeException("Error checking doctor availability", e);
+        }
+    }
+
+    @Override
+    public boolean isMedicoDisponible(String medicoId, LocalDateTime fechaHora) {
+        try {
+            int id = Integer.parseInt(medicoId);
+            return isMedicoDisponible(id, fechaHora);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid doctor ID format", e);
+        }
+    }
+
+    @Override
+    public boolean isMedicoDisponible(int medicoId, String fechaHoraStr) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime fechaHora = LocalDateTime.parse(fechaHoraStr, formatter);
+            return isMedicoDisponible(medicoId, fechaHora);
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid date format", e);
         }
     }
 

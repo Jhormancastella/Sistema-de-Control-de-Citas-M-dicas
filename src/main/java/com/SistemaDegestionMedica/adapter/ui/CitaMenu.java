@@ -1,7 +1,7 @@
 package com.SistemaDegestionMedica.adapter.ui;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -86,7 +86,14 @@ public class CitaMenu {
         // Fecha y hora de la cita
         System.out.print("Fecha y hora de la cita (YYYY-MM-DD HH:mm): ");
         String fechaHoraStr = scanner.nextLine();
-        Date fechaHora = java.sql.Timestamp.valueOf(fechaHoraStr);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime fechaHora;
+        try {
+            fechaHora = LocalDateTime.parse(fechaHoraStr, formatter);
+        } catch (Exception e) {
+            System.out.println("Formato de fecha y hora inválido. Use el formato YYYY-MM-DD HH:mm.");
+            return;
+        }
 
         // Crear cita
         Cita cita = new Cita(null, pacienteId, medicoId, fechaHora, "Programada");
@@ -115,13 +122,13 @@ public class CitaMenu {
         int id = scanner.nextInt();
         scanner.nextLine(); // Consumir el salto de línea
 
-        Optional<CitaMenu> citaOpt = citaService.obtenerCita(id);
+        Optional<Cita> citaOpt = citaService.obtenerCita(id);
         if (citaOpt.isEmpty()) {
             System.out.println("Cita no encontrada.");
             return;
         }
 
-        CitaMenu cita = citaOpt.get();
+        Cita cita = citaOpt.get();
         System.out.println("\n--- DETALLES DE LA CITA ---");
         System.out.println("ID: " + cita.getId());
         System.out.println("Paciente ID: " + cita.getPacienteId());
@@ -130,37 +137,12 @@ public class CitaMenu {
         System.out.println("Estado: " + cita.getEstado());
     }
 
-    private String getEstado() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEstado'");
-    }
-
-    private String getFechaHora() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFechaHora'");
-    }
-
-    private String getPacienteId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPacienteId'");
-    }
-
-    public String getMedicoId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMedicoId'");
-    }
-
-    private String getId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
-    }
-
     private void reprogramarCita() {
         System.out.print("\nIngrese el ID de la cita a reprogramar: ");
         int id = scanner.nextInt();
         scanner.nextLine(); // Consumir el salto de línea
 
-        Optional<CitaMenu> citaOpt = citaService.obtenerCita(id);
+        Optional<Cita> citaOpt = citaService.obtenerCita(id);
         if (citaOpt.isEmpty()) {
             System.out.println("Cita no encontrada.");
             return;
@@ -168,9 +150,16 @@ public class CitaMenu {
 
         System.out.print("Nueva fecha y hora (YYYY-MM-DD HH:mm): ");
         String nuevaFechaHoraStr = scanner.nextLine();
-        Date nuevaFechaHora = java.sql.Timestamp.valueOf(nuevaFechaHoraStr);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime nuevaFechaHora;
+        try {
+            nuevaFechaHora = LocalDateTime.parse(nuevaFechaHoraStr, formatter);
+        } catch (Exception e) {
+            System.out.println("Formato de fecha y hora inválido. Use el formato YYYY-MM-DD HH:mm.");
+            return;
+        }
 
-        CitaMenu cita = citaService.reprogramarCita(id, nuevaFechaHora);
+        Cita cita = citaService.reprogramarCita(id, nuevaFechaHora);
         if (cita != null) {
             System.out.println("Cita reprogramada exitosamente.");
         } else {
@@ -183,18 +172,17 @@ public class CitaMenu {
         int id = scanner.nextInt();
         scanner.nextLine(); // Consumir el salto de línea
 
-        Optional<CitaMenu> citaOpt = citaService.obtenerCita(id);
+        Optional<Cita> citaOpt = citaService.obtenerCita(id);
         if (citaOpt.isEmpty()) {
             System.out.println("Cita no encontrada.");
             return;
         }
 
-        citaService.cancelarCita(id);
-        System.out.println("Cita cancelada exitosamente.");
-    }
-
-    public void setFechaHora(LocalDateTime nuevaFechaHora) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setFechaHora'");
+        boolean cancelacionExitosa = citaService.cancelarCita(id);
+        if (cancelacionExitosa) {
+            System.out.println("Cita cancelada exitosamente.");
+        } else {
+            System.out.println("Error al cancelar la cita.");
+        }
     }
 }

@@ -28,11 +28,11 @@ public class CitaService {
         return citaRepository.findAll();
     }
 
-    public Optional<CitaMenu> obtenerCita(int id) {
+    public Optional<Cita> obtenerCita(int id) {
         return citaRepository.findById(id);
     }
 
-    public void cancelarCita(int id) {
+    public boolean cancelarCita(int id) {
         citaRepository.delete(id);
     }
 
@@ -74,8 +74,11 @@ public class CitaService {
         return citaRepository.findByMedicoId(medicoId);
     }
 
-    public CitaMenu reprogramarCita(int id, Date nuevaFechaHora) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'reprogramarCita'");
+    public Cita reprogramarCita(int id, Date nuevaFechaHora) {
+        LocalDateTime localDateTime = new Date(nuevaFechaHora.getTime())
+            .toInstant()
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime();
+        return reprogramarCita(id, localDateTime);
     }
 }

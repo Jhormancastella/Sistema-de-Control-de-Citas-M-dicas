@@ -1,6 +1,6 @@
 package com.SistemaDegestionMedica.adapter.ui;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -57,23 +57,23 @@ public class PacienteMenu {
 
     private void registrarPaciente() {
         System.out.println("\n--- REGISTRAR NUEVO PACIENTE ---");
+        System.out.print("Documento: ");
+        String documento = scanner.nextLine();
         System.out.print("Nombre: ");
         String nombre = scanner.nextLine();
         System.out.print("Apellido: ");
         String apellido = scanner.nextLine();
         System.out.print("Fecha de nacimiento (YYYY-MM-DD): ");
         String fechaStr = scanner.nextLine();
-        Date fechaNacimiento = java.sql.Date.valueOf(fechaStr);
+        LocalDate fechaNacimiento = LocalDate.parse(fechaStr);
+        System.out.print("Género: ");
+        String genero = scanner.nextLine();
         System.out.print("Dirección: ");
         String direccion = scanner.nextLine();
         System.out.print("Teléfono: ");
         String telefono = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
-
-        Paciente paciente = new Paciente(null, nombre, apellido, fechaNacimiento, direccion, telefono, email);
-        paciente = pacienteService.crearPaciente(paciente);
-        System.out.println("Paciente registrado con ID: " + paciente.getId());
     }
 
     private void listarPacientes() {
@@ -84,15 +84,16 @@ public class PacienteMenu {
             return;
         }
         for (Paciente paciente : pacientes) {
-            System.out.println("ID: " + paciente.getId() + ", Nombre: " + paciente.getNombre() + " " + paciente.getApellido() +
-                               ", Tel: " + paciente.getTelefono() + ", Email: " + paciente.getEmail());
+            System.out.printf("ID: %d, Nombre: %s %s, Tel: %s, Email: %s%n",
+                    paciente.getId(), paciente.getNombre(), paciente.getApellido(),
+                    paciente.getTelefono(), paciente.getEmail());
         }
     }
 
     private void buscarPacientePorId() {
         System.out.print("\nIngrese el ID del paciente: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
+        scanner.nextLine();
 
         Optional<Paciente> pacienteOpt = pacienteService.obtenerPaciente(id);
         if (pacienteOpt.isEmpty()) {
@@ -103,8 +104,10 @@ public class PacienteMenu {
         Paciente paciente = pacienteOpt.get();
         System.out.println("\n--- DETALLES DEL PACIENTE ---");
         System.out.println("ID: " + paciente.getId());
+        System.out.println("Documento: " + paciente.getDocumento());
         System.out.println("Nombre: " + paciente.getNombre() + " " + paciente.getApellido());
         System.out.println("Fecha de nacimiento: " + paciente.getFechaNacimiento());
+        System.out.println("Género: " + paciente.getGenero());
         System.out.println("Dirección: " + paciente.getDireccion());
         System.out.println("Teléfono: " + paciente.getTelefono());
         System.out.println("Email: " + paciente.getEmail());
@@ -113,7 +116,7 @@ public class PacienteMenu {
     private void actualizarPaciente() {
         System.out.print("\nIngrese el ID del paciente a actualizar: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
+        scanner.nextLine();
 
         Optional<Paciente> pacienteOpt = pacienteService.obtenerPaciente(id);
         if (pacienteOpt.isEmpty()) {
@@ -123,41 +126,38 @@ public class PacienteMenu {
 
         Paciente paciente = pacienteOpt.get();
         System.out.println("\n--- ACTUALIZAR PACIENTE ---");
+        
+        System.out.print("Nuevo documento (" + paciente.getDocumento() + "): ");
+        String documento = scanner.nextLine();
+        if (!documento.isEmpty()) paciente.setDocumento(documento);
+
         System.out.print("Nuevo nombre (" + paciente.getNombre() + "): ");
         String nombre = scanner.nextLine();
-        if (!nombre.isEmpty()) {
-            paciente.setNombre(nombre);
-        }
+        if (!nombre.isEmpty()) paciente.setNombre(nombre);
 
         System.out.print("Nuevo apellido (" + paciente.getApellido() + "): ");
         String apellido = scanner.nextLine();
-        if (!apellido.isEmpty()) {
-            paciente.setApellido(apellido);
-        }
+        if (!apellido.isEmpty()) paciente.setApellido(apellido);
 
         System.out.print("Nueva fecha de nacimiento (" + paciente.getFechaNacimiento() + ", YYYY-MM-DD): ");
         String fechaStr = scanner.nextLine();
-        if (!fechaStr.isEmpty()) {
-            paciente.setFechaNacimiento(java.sql.Date.valueOf(fechaStr));
-        }
+        if (!fechaStr.isEmpty()) paciente.setFechaNacimiento(LocalDate.parse(fechaStr));
+
+        System.out.print("Nuevo género (" + paciente.getGenero() + "): ");
+        String genero = scanner.nextLine();
+        if (!genero.isEmpty()) paciente.setGenero(genero);
 
         System.out.print("Nueva dirección (" + paciente.getDireccion() + "): ");
         String direccion = scanner.nextLine();
-        if (!direccion.isEmpty()) {
-            paciente.setDireccion(direccion);
-        }
+        if (!direccion.isEmpty()) paciente.setDireccion(direccion);
 
         System.out.print("Nuevo teléfono (" + paciente.getTelefono() + "): ");
         String telefono = scanner.nextLine();
-        if (!telefono.isEmpty()) {
-            paciente.setTelefono(telefono);
-        }
+        if (!telefono.isEmpty()) paciente.setTelefono(telefono);
 
         System.out.print("Nuevo email (" + paciente.getEmail() + "): ");
         String email = scanner.nextLine();
-        if (!email.isEmpty()) {
-            paciente.setEmail(email);
-        }
+        if (!email.isEmpty()) paciente.setEmail(email);
 
         pacienteService.actualizarPaciente(paciente);
         System.out.println("Paciente actualizado exitosamente.");
@@ -166,13 +166,7 @@ public class PacienteMenu {
     private void eliminarPaciente() {
         System.out.print("\nIngrese el ID del paciente a eliminar: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-
-        Optional<Paciente> pacienteOpt = pacienteService.obtenerPaciente(id);
-        if (pacienteOpt.isEmpty()) {
-            System.out.println("Paciente no encontrado.");
-            return;
-        }
+        scanner.nextLine();
 
         pacienteService.eliminarPaciente(id);
         System.out.println("Paciente eliminado exitosamente.");

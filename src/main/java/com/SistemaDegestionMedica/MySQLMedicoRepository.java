@@ -27,7 +27,7 @@ public class MySQLMedicoRepository implements MedicoRepository {
             
             stmt.setString(1, medico.getNombre());
             stmt.setString(2, medico.getApellido());
-            stmt.setFloat(3, medico.getEspecialidadId());
+            stmt.setInt(3, medico.getEspecialidadId());
             
             int affectedRows = stmt.executeUpdate();
             
@@ -148,7 +148,21 @@ public class MySQLMedicoRepository implements MedicoRepository {
 
     @Override
     public List<Medico> findByNombre(String nombre) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByNombre'");
+        List<Medico> medicos = new ArrayList<>();
+        String sql = "SELECT * FROM medicos WHERE nombre LIKE ?";
+        
+        try (Connection connection = connectionDb.getConexion();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            
+            stmt.setString(1, "%" + nombre + "%");
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                medicos.add(mapRowToMedico(rs));
+            }
+            return medicos;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding medicos by nombre", e);
+        }
     }
 }

@@ -147,6 +147,10 @@ public class MySQLPacienteRepository implements PacienteRepository {
         }
     }
 
+    public ConnectionDb getConnectionDb() {
+        return connectionDb;
+    }
+
     private Paciente mapRowToPaciente(ResultSet rs) throws SQLException {
         return new Paciente(
             rs.getInt("id"),

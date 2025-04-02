@@ -12,19 +12,14 @@ public class PacienteService {
         //TODO Auto-generated constructor stub
     }
 
-    public List<Paciente> listarPacientes() {
+    public Paciente crearPaciente(Paciente paciente) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listarPacientes'");
+        throw new UnsupportedOperationException("Unimplemented method 'crearPaciente'");
     }
 
-    public Optional<Paciente> obtenerPaciente(int pacienteId) {
+    public Optional<Paciente> obtenerPaciente(int id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'obtenerPaciente'");
-    }
-
-    public void eliminarPaciente(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminarPaciente'");
     }
 
     public void actualizarPaciente(Paciente paciente) {
@@ -32,9 +27,14 @@ public class PacienteService {
         throw new UnsupportedOperationException("Unimplemented method 'actualizarPaciente'");
     }
 
-    public Paciente crearPaciente(Paciente paciente) {
+    public List<Paciente> listarPacientes() {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'crearPaciente'");
+        throw new UnsupportedOperationException("Unimplemented method 'listarPacientes'");
+    }
+
+    public void eliminarPaciente(int id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'eliminarPaciente'");
     }
 
 }

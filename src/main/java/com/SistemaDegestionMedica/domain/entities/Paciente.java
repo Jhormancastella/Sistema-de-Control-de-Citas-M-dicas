@@ -1,77 +1,102 @@
 package com.SistemaDegestionMedica.domain.entities;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 public class Paciente {
+    private int id;
+    private String nombre;
+    private String apellido;
+    private LocalDate fechaNacimiento;
+    private String direccion;
+    private String telefono;
+    private String email;
+    private String documento;
+    private String genero; // Nuevo atributo
 
-    public Paciente(Object object, String nombre, String apellido, java.util.Date fechaNacimiento, String direccion,
-            String telefono, String email) {
-        //TODO Auto-generated constructor stub
+    // Constructor completo
+    public Paciente(int id, String nombre, String apellido, String direccion, 
+                   LocalDate fechaNacimiento, String telefono, String email, String documento, String genero) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.fechaNacimiento = fechaNacimiento;
+        this.direccion = direccion;
+        this.telefono = telefono;
+        this.email = email;
+        this.documento = documento;
+        this.genero = genero;
     }
 
-    public void setDireccion(String direccion) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setDireccion'");
+    // Getters y Setters
+    public int getId() {
+        return id;
     }
 
-    public String getDireccion() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDireccion'");
-    }
-
-    public void setFechaNacimiento(Date valueOf) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setFechaNacimiento'");
-    }
-
-    public String getEmail() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEmail'");
-    }
-
-    public void setEmail(String email) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setEmail'");
-    }
-
-    public String getTelefono() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTelefono'");
-    }
-
-    public void setTelefono(String telefono) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setTelefono'");
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNombre'");
-    }
-
-    public String getApellido() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getApellido'");
+        return nombre;
     }
 
     public void setNombre(String nombre) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setNombre'");
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
     }
 
     public void setApellido(String apellido) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setApellido'");
+        this.apellido = apellido;
     }
 
-    public String getFechaNacimiento() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFechaNacimiento'");
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
     }
 
-    public String getId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
     }
 
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(String documento) {
+        this.documento = documento;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
+    }
 }

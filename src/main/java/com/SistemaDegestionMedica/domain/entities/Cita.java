@@ -5,11 +5,11 @@ import java.util.Date;
 
 public class Cita {
 
-    public Cita(Object object, int pacienteId, int medicoId, Date fechaHora, String string) {
+    public Cita(Object object, int pacienteId, int medicoId, LocalDateTime fechaHora, String string) {
         //TODO Auto-generated constructor stub
     }
 
-    public Cita(int int1, int int2, int int3, LocalDateTime localDateTime, String string) {
+    public Cita() {
         //TODO Auto-generated constructor stub
     }
 
@@ -23,7 +23,7 @@ public class Cita {
         throw new UnsupportedOperationException("Unimplemented method 'getEstado'");
     }
 
-    public float getPacienteId() {
+    public int getPacienteId() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getPacienteId'");
     }
@@ -33,7 +33,7 @@ public class Cita {
         throw new UnsupportedOperationException("Unimplemented method 'getFechaHora'");
     }
 
-    public String getId() {
+    public int getId() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
@@ -46,6 +46,26 @@ public class Cita {
     public void setFechaHora(LocalDateTime nuevaFechaHora) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setFechaHora'");
+    }
+
+    public void setId(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setId'");
+    }
+
+    public void setPacienteId(String pacienteId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPacienteId'");
+    }
+
+    public void setMedicoId(String medicoId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setMedicoId'");
+    }
+
+    public void setEstado(Object estado) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setEstado'");
     }
 
 }

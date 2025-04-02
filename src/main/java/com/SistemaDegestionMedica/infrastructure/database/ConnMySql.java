@@ -6,7 +6,6 @@ import java.sql.SQLException;
 
 import com.SistemaDegestionMedica.config.HexaSingleton;
 
-
 public class ConnMySql implements ConnectionDb {
     @Override
     public Connection getConexion() throws SQLException {
@@ -17,13 +16,18 @@ public class ConnMySql implements ConnectionDb {
 
         return DriverManager.getConnection(url, usuario, password);
     }
-
+    
     @Override
     public boolean testConnection() {
-        try (Connection connection = getConexion()) {
-            return connection != null && !connection.isClosed();
+        try {
+            Connection connection = getConexion();
+            boolean isValid = connection != null && !connection.isClosed();
+            if (isValid) {
+                connection.close();
+            }
+            return isValid;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error al probar la conexión: " + e.getMessage());
             return false;
         }
     }
