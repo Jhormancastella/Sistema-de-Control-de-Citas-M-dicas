@@ -185,4 +185,24 @@ public class CitaMenu {
             System.out.println("Error al cancelar la cita.");
         }
     }
+
+    public String getPacienteId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPacienteId'");
+    }
+
+    public String getMedicoId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMedicoId'");
+    }
+
+    public LocalDateTime getFechaHora() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getFechaHora'");
+    }
+
+    public Object getEstado() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEstado'");
+    }
 }
