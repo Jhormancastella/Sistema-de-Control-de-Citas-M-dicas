@@ -172,7 +172,7 @@ erDiagram
     ESPECIALIDAD ||--o{ MEDICO : "pertenece"
 ```
 
-# 🏥 Sistema de Control de Citas Médicas - Base de Datos Eps
+#  Base de Datos Eps
 
 ## 🗃️ Script de Base de Datos EPS
 
@@ -478,7 +478,7 @@ Este proyecto está bajo licencia MIT. Consulte el archivo LICENSE para más det
 
 ---
 🚨 **Estado del Ejercicio**  
-sin-Culminado.  
+Culminado.  
 
 👤 **Autor**  
 Jhorman Jesús Castellanos Morales  
