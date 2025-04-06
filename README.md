@@ -471,11 +471,6 @@ Paciente registrado exitosamente!
 2. Para desarrollo en VS Code:
    - Instalar extensiones "Java Extension Pack" y "Maven for Java"
    - Configurar el JDK en settings.json
-
-## 📜 Licencia
-
-Este proyecto está bajo licencia MIT. Consulte el archivo LICENSE para más detalles.
-
 ---
 🚨 **Estado del Ejercicio**  
 Culminado.  
