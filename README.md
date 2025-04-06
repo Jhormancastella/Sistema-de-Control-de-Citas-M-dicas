@@ -1,11 +1,14 @@
 # 🏥 Sistema de Control de Citas Médicas
 
 ## 📌 Descripción del Proyecto
+
 El Sistema de Control de Citas Médicas es una solución integral diseñada para optimizar la gestión de pacientes, médicos, especialidades y citas en entornos de salud, implementando una arquitectura hexagonal robusta y patrones de diseño avanzados.
 
 ## 🏗️ Arquitectura del Sistema
 
+
 ### 🔷 **Arquitectura Hexagonal**
+
 Implementamos una arquitectura limpia que separa:
 - **Núcleo del negocio** (dominio)
 - **Casos de uso** (lógica de aplicación)
@@ -169,91 +172,187 @@ erDiagram
     ESPECIALIDAD ||--o{ MEDICO : "pertenece"
 ```
 
-# 🏥 Sistema de Control de Citas Médicas - Base de Datos EPS
+# 🏥 Sistema de Control de Citas Médicas - Base de Datos Eps
 
 ## 🗃️ Script de Base de Datos EPS
 
 ```sql
--- Creación de la base de datos EPS
-CREATE DATABASE IF NOT EXISTS Eps;
+CREATE DATABASE Eps;
 USE Eps;
 
--- Tabla ESPECIALIDAD
-CREATE TABLE Especialidad (
-    id_especialidad INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+-- Tabla especialidades
+
+CREATE TABLE especialidades (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion TEXT
 ) ENGINE=InnoDB;
 
--- Tabla MEDICO
-CREATE TABLE Medico (
-    id_medico INT AUTO_INCREMENT PRIMARY KEY,
+-- Tabla medicos
+
+CREATE TABLE medicos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
-    matricula VARCHAR(50) UNIQUE NOT NULL,
-    id_especialidad INT,
-    FOREIGN KEY (id_especialidad) REFERENCES Especialidad(id_especialidad)
+    documento VARCHAR(20) NOT NULL UNIQUE,
+    telefono VARCHAR(15),
+    email VARCHAR(100) NOT NULL UNIQUE,
+    especialidad_id INT NOT NULL,
+    horario_inicio TIME NOT NULL,
+    horario_fin TIME NOT NULL,
+    FOREIGN KEY (especialidad_id) REFERENCES especialidades(id),
+    CONSTRAINT chk_horario_valido CHECK (horario_fin > horario_inicio),
+    CONSTRAINT chk_email_valido CHECK (email LIKE '%@gmail.com')
 ) ENGINE=InnoDB;
 
--- Tabla PACIENTE
-CREATE TABLE Paciente (
-    id_paciente INT AUTO_INCREMENT PRIMARY KEY,
+-- Tabla pacientes
+
+CREATE TABLE pacientes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
-    dni VARCHAR(20) UNIQUE NOT NULL,
-    telefono VARCHAR(20),
-    direccion TEXT,
-    fecha_nacimiento DATE,
-    tipo_afiliacion ENUM('Contributivo', 'Subsidiado') NOT NULL
+    documento VARCHAR(20) NOT NULL UNIQUE,
+    telefono VARCHAR(15),
+    email VARCHAR(100) NOT NULL UNIQUE,
+    fecha_nacimiento DATE NOT NULL,
+    tipo_afiliacion ENUM('Contributivo', 'Subsidiado') NOT NULL,
+    CONSTRAINT chk_email_paciente_valido CHECK (email LIKE '%@gmail.com')
 ) ENGINE=InnoDB;
 
--- Tabla CITA
-CREATE TABLE Cita (
-    id_cita INT AUTO_INCREMENT PRIMARY KEY,
-    id_paciente INT NOT NULL,
-    id_medico INT NOT NULL,
-    fecha DATE NOT NULL,
-    hora TIME NOT NULL,
-    estado ENUM('Pendiente', 'Confirmada', 'Cancelada', 'Completada') DEFAULT 'Pendiente',
+-- Tabla citas 
+
+CREATE TABLE citas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    paciente_id INT NOT NULL,
+    medico_id INT NOT NULL,
+    fecha_hora DATETIME NOT NULL,
+    estado ENUM('Programada', 'Confirmada', 'Cancelada', 'Completada') DEFAULT 'Programada',
     motivo TEXT,
-    FOREIGN KEY (id_paciente) REFERENCES Paciente(id_paciente),
-    FOREIGN KEY (id_medico) REFERENCES Medico(id_medico)
+    FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    FOREIGN KEY (medico_id) REFERENCES medicos(id),
+    CONSTRAINT uc_cita_unica UNIQUE (medico_id, fecha_hora)
 ) ENGINE=InnoDB;
 
--- INSERCIONES INICIALES
+-- Tabla de auditoría
 
--- Especialidades
-INSERT INTO Especialidad (nombre, descripcion) VALUES 
-('Medicina General', 'Atención primaria de salud'),
-('Pediatría', 'Atención médica para niños'),
-('Ginecología', 'Salud reproductiva femenina'),
-('Cardiología', 'Enfermedades del corazón'),
-('Ortopedia', 'Problemas musculoesqueléticos');
+CREATE TABLE auditoria_citas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cita_id INT NOT NULL,
+    fecha_cambio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    usuario VARCHAR(50) NOT NULL,
+    campo_modificado VARCHAR(50) NOT NULL,
+    valor_anterior TEXT,
+    valor_nuevo TEXT,
+    FOREIGN KEY (cita_id) REFERENCES citas(id)
+) ENGINE=InnoDB;
 
--- Médicos
-INSERT INTO Medico (nombre, apellido, matricula, id_especialidad) VALUES 
-('Juan', 'Martínez', 'MG12345', 1),
-('Ana', 'Gómez', 'PG54321', 2),
-('Carlos', 'López', 'GG67890', 3),
-('Sofía', 'Rodríguez', 'CG09876', 4),
-('Pedro', 'Hernández', 'OG11223', 5);
+-- Trigger para validar fecha futura 
 
--- Pacientes
-INSERT INTO Paciente (nombre, apellido, dni, telefono, direccion, fecha_nacimiento, tipo_afiliacion) VALUES 
-('María', 'García', '12345678', '3101234567', 'Calle 123 #45-67', '1985-05-15', 'Contributivo'),
-('José', 'Pérez', '87654321', '3209876543', 'Av. Siempreviva 742', '1990-08-22', 'Subsidiado'),
-('Laura', 'Sánchez', '56781234', '3156789012', 'Carrera 56 #12-34', '1978-11-30', 'Contributivo'),
-('Carlos', 'Ramírez', '34567890', '3173456789', 'Diagonal 34 #56-78', '1995-03-10', 'Subsidiado');
+DELIMITER //
+CREATE TRIGGER validar_fecha_cita
+BEFORE INSERT ON citas
+FOR EACH ROW
+BEGIN
+    IF NEW.fecha_hora <= NOW() THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: La fecha/hora de la cita debe ser en el futuro';
+    END IF;
+END//
+DELIMITER ;
 
--- Citas
-INSERT INTO Cita (id_paciente, id_medico, fecha, hora, estado, motivo) VALUES 
-(1, 1, '2023-11-15', '08:00:00', 'Confirmada', 'Control general'),
-(2, 2, '2023-11-16', '09:30:00', 'Pendiente', 'Control niño sano'),
-(3, 3, '2023-11-17', '10:00:00', 'Confirmada', 'Consulta ginecológica'),
-(4, 4, '2023-11-18', '11:00:00', 'Pendiente', 'Dolor en el pecho'),
-(1, 5, '2023-11-20', '14:00:00', 'Pendiente', 'Dolor en rodilla');
+-- Trigger para actualizaciones de fecha
 
-SELECT 'Base de datos EPS creada exitosamente con datos de prueba' AS Mensaje;
+DELIMITER //
+CREATE TRIGGER validar_fecha_cita_update
+BEFORE UPDATE ON citas
+FOR EACH ROW
+BEGIN
+    IF NEW.fecha_hora <= NOW() THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: La fecha/hora de la cita debe ser en el futuro';
+    END IF;
+END//
+DELIMITER ;
+
+-- Trigger para auditoría
+
+DELIMITER //
+CREATE TRIGGER auditoria_cambios_cita
+AFTER UPDATE ON citas
+FOR EACH ROW
+BEGIN
+    IF OLD.estado <> NEW.estado THEN
+        INSERT INTO auditoria_citas (cita_id, usuario, campo_modificado, valor_anterior, valor_nuevo)
+        VALUES (NEW.id, CURRENT_USER(), 'estado', OLD.estado, NEW.estado);
+    END IF;
+    
+    IF OLD.fecha_hora <> NEW.fecha_hora THEN
+        INSERT INTO auditoria_citas (cita_id, usuario, campo_modificado, valor_anterior, valor_nuevo)
+        VALUES (NEW.id, CURRENT_USER(), 'fecha_hora', OLD.fecha_hora, NEW.fecha_hora);
+    END IF;
+END//
+DELIMITER ;
+
+-- Datos de prueba para especialidades
+
+INSERT INTO especialidades (nombre, descripcion) VALUES 
+('Cardiología', 'Especialidad en enfermedades del corazón'),
+('Pediatría', 'Especialidad en atención infantil'),
+('Dermatología', 'Especialidad en enfermedades de la piel'),
+('Ginecología', 'Especialidad en salud femenina'),
+('Traumatología', 'Especialidad en sistema musculoesquelético');
+
+-- Datos de prueba para médicos
+
+INSERT INTO medicos (nombre, apellido, documento, email, especialidad_id, horario_inicio, horario_fin) VALUES 
+('Juan Carlos', 'Martínez', '12345678', 'juan.martinez@gmail.com', 1, '08:00:00', '16:00:00'),
+('María Elena', 'Gómez', '23456789', 'maria.gomez@gmail.com', 2, '09:00:00', '17:00:00'),
+('Carlos Andrés', 'López', '34567890', 'carlos.lopez@gmail.com', 3, '08:30:00', '16:30:00'),
+('Ana Patricia', 'Rodríguez', '45678901', 'ana.rodriguez@gmail.com', 4, '10:00:00', '18:00:00'),
+('Pedro Antonio', 'Hernández', '56789012', 'pedro.hernandez@gmail.com', 5, '07:00:00', '15:00:00');
+
+-- Datos de prueba para pacientes
+
+INSERT INTO pacientes (nombre, apellido, documento, telefono, email, fecha_nacimiento, tipo_afiliacion) VALUES 
+('Laura', 'García', '11223344', '3101111111', 'laura.garcia@gmail.com', '1985-05-15', 'Contributivo'),
+('José', 'Pérez', '22334455', '3202222222', 'jose.perez@gmail.com', '1990-08-22', 'Subsidiado'),
+('Sofía', 'Sánchez', '33445566', '3153333333', 'sofia.sanchez@gmail.com', '1978-11-30', 'Contributivo'),
+('Diego', 'Ramírez', '44556677', '3174444444', 'diego.ramirez@gmail.com', '1995-03-10', 'Subsidiado'),
+('Valentina', 'Torres', '55667788', '3185555555', 'valentina.torres@gmail.com', '1982-07-25', 'Contributivo');
+
+-- Datos de prueba para citas (usando fechas futuras)
+
+INSERT INTO citas (paciente_id, medico_id, fecha_hora, estado, motivo) VALUES 
+(1, 1, DATE_ADD(NOW(), INTERVAL 2 DAY), 'Programada', 'Control cardiológico'),
+(2, 2, DATE_ADD(NOW(), INTERVAL 3 DAY), 'Confirmada', 'Control pediátrico'),
+(3, 3, DATE_ADD(NOW(), INTERVAL 4 DAY), 'Programada', 'Consulta dermatológica'),
+(4, 4, DATE_ADD(NOW(), INTERVAL 5 DAY), 'Confirmada', 'Consulta ginecológica'),
+(5, 5, DATE_ADD(NOW(), INTERVAL 6 DAY), 'Programada', 'Dolor en rodilla');
+
+-- Vista para citas programadas
+
+CREATE VIEW vw_citas_programadas AS
+SELECT c.id, 
+       CONCAT(p.nombre, ' ', p.apellido) AS paciente,
+       CONCAT(m.nombre, ' ', m.apellido) AS medico,
+       e.nombre AS especialidad,
+       DATE_FORMAT(c.fecha_hora, '%d/%m/%Y %H:%i') AS fecha_hora,
+       c.estado, c.motivo
+FROM citas c
+JOIN pacientes p ON c.paciente_id = p.id
+JOIN medicos m ON c.medico_id = m.id
+JOIN especialidades e ON m.especialidad_id = e.id
+WHERE c.estado IN ('Programada', 'Confirmada');
+
+-- Mensaje de confirmación
+
+SELECT 'Tablas creadas: especialidades, medicos, pacientes, citas, auditoria_citas' AS Tablas;
+
+SELECT 'Triggers creados: validar_fecha_cita, validar_fecha_cita_update, auditoria_cambios_cita' AS Triggers;
+
+SELECT 'Vista creada: vw_citas_programadas' AS Vistas;
+
+SELECT 'Base de datos EPS creada exitosamente con datos de prueba ve a visual studio code y ejecuta MainMenu' AS Mensaje;
 ```
 
 ## 📝 Notas importantes
