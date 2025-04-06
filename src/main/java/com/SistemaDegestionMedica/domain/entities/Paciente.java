@@ -3,36 +3,35 @@ package com.SistemaDegestionMedica.domain.entities;
 import java.time.LocalDate;
 
 public class Paciente {
-    private int id;
+    private Integer id;
     private String nombre;
     private String apellido;
-    private LocalDate fechaNacimiento;
-    private String direccion;
+    private String documento;
     private String telefono;
     private String email;
-    private String documento;
-    private String genero; // Nuevo atributo
+    private LocalDate fechaNacimiento;
 
-    // Constructor completo
-    public Paciente(int id, String nombre, String apellido, String direccion, 
-                   LocalDate fechaNacimiento, String telefono, String email, String documento, String genero) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.fechaNacimiento = fechaNacimiento;
-        this.direccion = direccion;
-        this.telefono = telefono;
-        this.email = email;
-        this.documento = documento;
-        this.genero = genero;
+    public Paciente() {
+        // Constructor vací
+    }
+
+    public Paciente(String email2, String email3, String email4, LocalDate fechaNacimiento2, String email5,
+            String email6, String email7, String email8) {
+        this.nombre = email2;
+        this.apellido = email3;
+        this.documento = email4;
+        this.telefono = email5;
+        this.email = email6;
+        this.fechaNacimiento = fechaNacimiento2;
+        
     }
 
     // Getters y Setters
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -52,20 +51,12 @@ public class Paciente {
         this.apellido = apellido;
     }
 
-    public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
+    public String getDocumento() {
+        return documento;
     }
 
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setDocumento(String documento) {
+        this.documento = documento;
     }
 
     public String getTelefono() {
@@ -84,19 +75,24 @@ public class Paciente {
         this.email = email;
     }
 
-    public String getDocumento() {
-        return documento;
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
     }
 
-    public void setDocumento(String documento) {
-        this.documento = documento;
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
     }
 
-    public String getGenero() {
-        return genero;
-    }
-
-    public void setGenero(String genero) {
-        this.genero = genero;
+    @Override
+    public String toString() {
+        return "Paciente{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", documento='" + documento + '\'' +
+                ", telefono='" + telefono + '\'' +
+                ", email='" + email + '\'' +
+                ", fechaNacimiento=" + fechaNacimiento +
+                '}';
     }
 }

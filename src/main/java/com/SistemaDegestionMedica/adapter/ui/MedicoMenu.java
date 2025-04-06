@@ -6,17 +6,17 @@ import java.util.Scanner;
 
 import com.SistemaDegestionMedica.application.usecase.EspecialidadService;
 import com.SistemaDegestionMedica.application.usecase.MedicoService;
-import com.SistemaDegestionMedica.domain.entities.Medico;
+import com.SistemaDegestionMedica.domain.Medico;
 
 public class MedicoMenu {
     private final MedicoService medicoService;
     private final EspecialidadService especialidadService;
     private final Scanner scanner;
 
-    public MedicoMenu(MedicoService medicoService, EspecialidadService especialidadService, Scanner scanner) {
+    public MedicoMenu(MedicoService medicoService, EspecialidadService especialidadService) {
         this.medicoService = medicoService;
         this.especialidadService = especialidadService;
-        this.scanner = scanner;
+        this.scanner = new Scanner(System.in); // Inicialización correcta del Scanner
     }
 
     public void mostrarMenu() {
@@ -30,29 +30,32 @@ public class MedicoMenu {
             System.out.println("6. Volver al menú principal");
             System.out.print("Seleccione una opción: ");
 
-            int opcion = scanner.nextInt();
-            scanner.nextLine(); // Consumir el salto de línea
+            try {
+                int opcion = Integer.parseInt(scanner.nextLine()); // Manejo de entrada segura
 
-            switch (opcion) {
-                case 1:
-                    registrarMedico();
-                    break;
-                case 2:
-                    listarMedicos();
-                    break;
-                case 3:
-                    buscarMedicoPorId();
-                    break;
-                case 4:
-                    actualizarMedico();
-                    break;
-                case 5:
-                    eliminarMedico();
-                    break;
-                case 6:
-                    return; // Volver al menú principal
-                default:
-                    System.out.println("Opción no válida. Intente de nuevo.");
+                switch (opcion) {
+                    case 1:
+                        registrarMedico();
+                        break;
+                    case 2:
+                        listarMedicos();
+                        break;
+                    case 3:
+                        buscarMedicoPorId();
+                        break;
+                    case 4:
+                        actualizarMedico();
+                        break;
+                    case 5:
+                        eliminarMedico();
+                        break;
+                    case 6:
+                        return; // Volver al menú principal
+                    default:
+                        System.out.println("Opción no válida. Intente de nuevo.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada inválida. Por favor, ingrese un número.");
             }
         }
     }
@@ -67,8 +70,7 @@ public class MedicoMenu {
                 System.out.println(especialidad.getId() + ". " + especialidad.getNombre()));
 
         System.out.print("Ingrese el ID de la especialidad: ");
-        int especialidadId = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
+        int especialidadId = Integer.parseInt(scanner.nextLine()); // Manejo seguro de entrada
 
         System.out.print("Horario de inicio (HH:mm): ");
         String horarioInicio = scanner.nextLine();
@@ -96,8 +98,7 @@ public class MedicoMenu {
 
     private void buscarMedicoPorId() {
         System.out.print("\nIngrese el ID del médico: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
+        int id = Integer.parseInt(scanner.nextLine()); // Manejo seguro de entrada
 
         Optional<Medico> medicoOpt = medicoService.obtenerMedico(id);
         if (medicoOpt.isEmpty()) {
@@ -115,8 +116,7 @@ public class MedicoMenu {
 
     private void actualizarMedico() {
         System.out.print("\nIngrese el ID del médico a actualizar: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
+        int id = Integer.parseInt(scanner.nextLine()); // Manejo seguro de entrada
 
         Optional<Medico> medicoOpt = medicoService.obtenerMedico(id);
         if (medicoOpt.isEmpty()) {
@@ -156,8 +156,7 @@ public class MedicoMenu {
 
     private void eliminarMedico() {
         System.out.print("\nIngrese el ID del médico a eliminar: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
+        int id = Integer.parseInt(scanner.nextLine()); // Manejo seguro de entrada
 
         Optional<Medico> medicoOpt = medicoService.obtenerMedico(id);
         if (medicoOpt.isEmpty()) {

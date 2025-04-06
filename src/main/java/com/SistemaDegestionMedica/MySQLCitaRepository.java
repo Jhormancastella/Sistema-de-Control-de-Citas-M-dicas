@@ -7,12 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.SistemaDegestionMedica.adapter.ui.CitaMenu;
 import com.SistemaDegestionMedica.domain.entities.Cita;
 import com.SistemaDegestionMedica.infrastructure.database.ConnectionDb;
 
@@ -38,46 +36,47 @@ public class MySQLCitaRepository implements CitaRepository {
             int affectedRows = stmt.executeUpdate();
             
             if (affectedRows == 0) {
-                throw new SQLException("Creating appointment failed, no rows affected.");
+                throw new SQLException("No se pudo crear la cita, ninguna fila afectada.");
             }
             
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     cita.setId(generatedKeys.getInt(1));
                 } else {
-                    throw new SQLException("Creating appointment failed, no ID obtained.");
+                    throw new SQLException("No se pudo obtener el ID generado para la cita.");
                 }
             }
             
             return cita;
         } catch (SQLException e) {
-            throw new RuntimeException("Error saving appointment", e);
+            throw new RuntimeException("Error al guardar cita: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public Optional findById(int id) {
+    public Optional<Cita> findById(int id) {
         String sql = "SELECT * FROM citas WHERE id = ?";
         
         try (Connection connection = connectionDb.getConexion();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             
             stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
             
-            if (rs.next()) {
-                return Optional.of(mapRowToCita(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToCita(rs));
+                }
+                return Optional.empty();
             }
-            return Optional.empty();
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding appointment by id", e);
+            throw new RuntimeException("Error al buscar cita por ID: " + id, e);
         }
     }
 
     @Override
     public List<Cita> findAll() {
         List<Cita> citas = new ArrayList<>();
-        String sql = "SELECT * FROM citas";
+        String sql = "SELECT * FROM citas ORDER BY fecha_hora DESC";
         
         try (Connection connection = connectionDb.getConexion();
              Statement stmt = connection.createStatement();
@@ -88,7 +87,7 @@ public class MySQLCitaRepository implements CitaRepository {
             }
             return citas;
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding all appointments", e);
+            throw new RuntimeException("Error al listar todas las citas", e);
         }
     }
 
@@ -105,25 +104,14 @@ public class MySQLCitaRepository implements CitaRepository {
             stmt.setString(4, cita.getEstado());
             stmt.setInt(5, cita.getId());
             
-            stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("No se encontró ninguna cita con ID: " + cita.getId());
+            }
             return cita;
         } catch (SQLException e) {
-            throw new RuntimeException("Error updating appointment", e);
+            throw new RuntimeException("Error al actualizar cita: " + cita.getId(), e);
         }
-    }
-
-    @Override
-    public Cita update(CitaMenu citaMenu) {
-
-        Cita cita = new Cita();
-
-        cita.setId(citaMenu.getId());
-        cita.setPacienteId(citaMenu.getPacienteId());
-        cita.setMedicoId(citaMenu.getMedicoId());
-        cita.setFechaHora(citaMenu.getFechaHora());
-        cita.setEstado(citaMenu.getEstado());
-        
-        return update(cita);
     }
 
     @Override
@@ -134,9 +122,13 @@ public class MySQLCitaRepository implements CitaRepository {
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             
             stmt.setInt(1, id);
-            stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
+            
+            if (affectedRows == 0) {
+                throw new SQLException("No se encontró ninguna cita con ID: " + id);
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Error deleting appointment", e);
+            throw new RuntimeException("Error al eliminar cita: " + id, e);
         }
     }
 
@@ -157,28 +149,7 @@ public class MySQLCitaRepository implements CitaRepository {
             }
             return false;
         } catch (SQLException e) {
-            throw new RuntimeException("Error checking doctor availability", e);
-        }
-    }
-
-    @Override
-    public boolean isMedicoDisponible(String medicoId, LocalDateTime fechaHora) {
-        try {
-            int id = Integer.parseInt(medicoId);
-            return isMedicoDisponible(id, fechaHora);
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Invalid doctor ID format", e);
-        }
-    }
-
-    @Override
-    public boolean isMedicoDisponible(int medicoId, String fechaHoraStr) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime fechaHora = LocalDateTime.parse(fechaHoraStr, formatter);
-            return isMedicoDisponible(medicoId, fechaHora);
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid date format", e);
+            throw new RuntimeException("Error al verificar disponibilidad del médico", e);
         }
     }
 
@@ -191,14 +162,15 @@ public class MySQLCitaRepository implements CitaRepository {
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             
             stmt.setInt(1, pacienteId);
-            ResultSet rs = stmt.executeQuery();
             
-            while (rs.next()) {
-                citas.add(mapRowToCita(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    citas.add(mapRowToCita(rs));
+                }
+                return citas;
             }
-            return citas;
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding appointments by patient", e);
+            throw new RuntimeException("Error al buscar citas por paciente: " + pacienteId, e);
         }
     }
 
@@ -211,24 +183,25 @@ public class MySQLCitaRepository implements CitaRepository {
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             
             stmt.setInt(1, medicoId);
-            ResultSet rs = stmt.executeQuery();
             
-            while (rs.next()) {
-                citas.add(mapRowToCita(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    citas.add(mapRowToCita(rs));
+                }
+                return citas;
             }
-            return citas;
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding appointments by doctor", e);
+            throw new RuntimeException("Error al buscar citas por médico: " + medicoId, e);
         }
     }
 
     private Cita mapRowToCita(ResultSet rs) throws SQLException {
-        return new Cita(
-            rs.getInt("id"),
-            rs.getInt("paciente_id"),
-            rs.getInt("medico_id"),
-            rs.getTimestamp("fecha_hora").toLocalDateTime(),
-            rs.getString("estado")
-        );
+        Cita cita = new Cita();
+        cita.setId(rs.getInt("id"));
+        cita.setPacienteId(rs.getInt("paciente_id"));
+        cita.setMedicoId(rs.getInt("medico_id"));
+        cita.setFechaHora(rs.getTimestamp("fecha_hora").toLocalDateTime());
+        cita.setEstado(rs.getString("estado"));
+        return cita;
     }
 }

@@ -1,14 +1,15 @@
 package com.SistemaDegestionMedica;
 
-import com.SistemaDegestionMedica.domain.entities.Paciente;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import com.SistemaDegestionMedica.domain.entities.Paciente;
+
 public interface PacienteRepository {
-    Paciente save(Paciente paciente);
-    Optional<Paciente> findById(float id);
-    List<Paciente> findAll();
-    void update(Paciente paciente);
-    void delete(int id);
-    Optional<Paciente> findByDocumento(String documento);
+    Paciente save(Paciente paciente) throws SQLException;
+    Optional<Paciente> findById(int id) throws SQLException;
+    List<Paciente> findAll() throws SQLException;
+    void update(Paciente paciente) throws SQLException;
+    void delete(int id) throws SQLException;
 }

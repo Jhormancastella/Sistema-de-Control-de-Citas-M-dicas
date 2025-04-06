@@ -7,34 +7,54 @@ import com.SistemaDegestionMedica.EspecialidadRepository;
 import com.SistemaDegestionMedica.domain.entities.Especialidad;
 
 public class EspecialidadService {
+    private final EspecialidadRepository especialidadRepo;
 
     public EspecialidadService(EspecialidadRepository especialidadRepo) {
-        //TODO Auto-generated constructor stub
+        this.especialidadRepo = especialidadRepo;
     }
 
     public List<Especialidad> listarEspecialidades() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listarEspecialidades'");
+        try {
+            return especialidadRepo.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al listar especialidades", e);
+        }
     }
 
     public Especialidad crearEspecialidad(Especialidad especialidad) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'crearEspecialidad'");
+        try {
+            return especialidadRepo.save(especialidad);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al crear especialidad", e);
+        }
+    }
+
+    public Optional<Especialidad> buscarEspecialidadPorId(int id) {
+        try {
+            return especialidadRepo.findById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al buscar especialidad por ID", e);
+        }
+    }
+
+    public void actualizarEspecialidad(Especialidad especialidad) {
+        try {
+            especialidadRepo.update(especialidad);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar especialidad", e);
+        }
+    }
+
+    public void eliminarEspecialidad(int id) {
+        try {
+            especialidadRepo.delete(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar especialidad", e);
+        }
     }
 
     public Optional<Especialidad> crearEspecialidad(int id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'crearEspecialidad'");
     }
-
-    public void actualizarEspecialidad(Especialidad especialidad) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actualizarEspecialidad'");
-    }
-
-    public void eliminarEspecialidad(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminarEspecialidad'");
-    }
-
 }

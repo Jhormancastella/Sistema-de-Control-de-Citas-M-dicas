@@ -1,7 +1,5 @@
 package com.SistemaDegestionMedica;
 
-import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,154 +12,110 @@ import com.SistemaDegestionMedica.domain.entities.Paciente;
 import com.SistemaDegestionMedica.infrastructure.database.ConnectionDb;
 
 public class MySQLPacienteRepository implements PacienteRepository {
-    private final ConnectionDb connectionDb;
+    private final ConnectionDb connection;
 
     public MySQLPacienteRepository(ConnectionDb connectionDb) {
-        this.connectionDb = connectionDb;
+        this.connection = connectionDb;
     }
 
     @Override
-    public Paciente save(Paciente paciente) {
-        String sql = "INSERT INTO pacientes (documento, nombre, apellido, fecha_nacimiento, genero, direccion, telefono, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+public Paciente save(Paciente paciente) throws SQLException {
+        if (paciente.getId() == 0) {
+            return insertPaciente(paciente);
+        } else {
+            update(paciente);
+            return paciente;
+        }
+    }
+    @Override
+    public Optional<Paciente> findById(int id) throws SQLException {
+        String sql = "SELECT * FROM pacientes WHERE id = ?";
         
-        try (Connection connection = connectionDb.getConexion();
-             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
             
-            stmt.setString(1, paciente.getDocumento());
-            stmt.setString(2, paciente.getNombre());
-            stmt.setString(3, paciente.getApellido());
-            stmt.setDate(4, Date.valueOf(paciente.getFechaNacimiento()));
-            stmt.setString(5, paciente.getGenero());
-            stmt.setString(6, paciente.getDireccion());
-            stmt.setString(7, paciente.getTelefono());
-            stmt.setString(8, paciente.getEmail());
-            
-            int affectedRows = stmt.executeUpdate();
-            
-            if (affectedRows == 0) {
-                throw new SQLException("Creating paciente failed, no rows affected.");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapToPaciente(rs));
+                }
             }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Paciente> findAll() throws SQLException {
+        List<Paciente> pacientes = new ArrayList<>();
+        String sql = "SELECT * FROM pacientes";
+        
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                pacientes.add(mapToPaciente(rs));
+            }
+        }
+        return pacientes;
+    }
+
+    @Override
+    public void update(Paciente paciente) throws SQLException {
+        String sql = "UPDATE pacientes SET nombre = ?, apellido = ?, documento = ?, telefono = ?, email = ?, fecha_nacimiento = ? WHERE id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, paciente.getNombre());
+            stmt.setString(2, paciente.getApellido());
+            stmt.setString(3, paciente.getDocumento());
+            stmt.setString(4, paciente.getTelefono());
+            stmt.setString(5, paciente.getEmail());
+            stmt.setDate(6, java.sql.Date.valueOf(paciente.getFechaNacimiento()));
+            stmt.setInt(7, paciente.getId());
+            
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM pacientes WHERE id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
+    }
+
+    private Paciente insertPaciente(Paciente paciente) throws SQLException {
+        String sql = "INSERT INTO pacientes (nombre, apellido, documento, telefono, email, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, paciente.getNombre());
+            stmt.setString(2, paciente.getApellido());
+            stmt.setString(3, paciente.getDocumento());
+            stmt.setString(4, paciente.getTelefono());
+            stmt.setString(5, paciente.getEmail());
+            stmt.setDate(6, java.sql.Date.valueOf(paciente.getFechaNacimiento()));
+            
+            stmt.executeUpdate();
             
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     paciente.setId(generatedKeys.getInt(1));
-                } else {
-                    throw new SQLException("Creating paciente failed, no ID obtained.");
                 }
             }
-            
-            return paciente;
-        } catch (SQLException e) {
-            throw new RuntimeException("Error saving paciente", e);
         }
+        return paciente;
     }
 
-    @Override
-    public Optional<Paciente> findById(int id) {
-        String sql = "SELECT * FROM pacientes WHERE id = ?";
-        try (Connection connection = connectionDb.getConexion();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                return Optional.of(mapRowToPaciente(rs));
-            }
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new RuntimeException("Error finding paciente by id", e);
-        }
-    }
-
-    @Override
-    public List<Paciente> findAll() {
-        List<Paciente> pacientes = new ArrayList<>();
-        String sql = "SELECT * FROM pacientes";
-        
-        try (Connection connection = connectionDb.getConexion();
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
-            while (rs.next()) {
-                pacientes.add(mapRowToPaciente(rs));
-            }
-            return pacientes;
-        } catch (SQLException e) {
-            throw new RuntimeException("Error finding all pacientes", e);
-        }
-    }
-
-    @Override
-    public void update(Paciente paciente) {
-        String sql = "UPDATE pacientes SET documento = ?, nombre = ?, apellido = ?, fecha_nacimiento = ?, genero = ?, direccion = ?, telefono = ?, email = ? WHERE id = ?";
-        
-        try (Connection connection = connectionDb.getConexion();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
-            stmt.setString(1, paciente.getDocumento());
-            stmt.setString(2, paciente.getNombre());
-            stmt.setString(3, paciente.getApellido());
-            stmt.setDate(4, Date.valueOf(paciente.getFechaNacimiento()));
-            stmt.setString(5, paciente.getGenero());
-            stmt.setString(6, paciente.getDireccion());
-            stmt.setString(7, paciente.getTelefono());
-            stmt.setString(8, paciente.getEmail());
-            stmt.setInt(9, paciente.getId());
-            
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Error updating paciente", e);
-        }
-    }
-
-    @Override
-    public void delete(int id) {
-        String sql = "DELETE FROM pacientes WHERE id = ?";
-        
-        try (Connection connection = connectionDb.getConexion();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Error deleting paciente", e);
-        }
-    }
-
-    @Override
-    public Optional<Paciente> findByDocumento(String documento) {
-        String sql = "SELECT * FROM pacientes WHERE documento = ?";
-        try (Connection connection = connectionDb.getConexion();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
-            stmt.setString(1, documento);
-            ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                return Optional.of(mapRowToPaciente(rs));
-            }
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new RuntimeException("Error finding paciente by documento", e);
-        }
-    }
-
-    public ConnectionDb getConnectionDb() {
-        return connectionDb;
-    }
-
-    private Paciente mapRowToPaciente(ResultSet rs) throws SQLException {
-        return new Paciente(
-            rs.getInt("id"),
-            rs.getString("documento"),
-            rs.getString("nombre"),
-            rs.getString("apellido"),
-            rs.getDate("fecha_nacimiento").toLocalDate(),
-            rs.getString("genero"),
-            rs.getString("direccion"),
-            rs.getString("telefono"),
-            rs.getString("email")
-        );
+    private Paciente mapToPaciente(ResultSet rs) throws SQLException {
+        Paciente paciente = new Paciente();
+        paciente.setId(rs.getInt("id"));
+        paciente.setNombre(rs.getString("nombre"));
+        paciente.setApellido(rs.getString("apellido"));
+        paciente.setDocumento(rs.getString("documento"));
+        paciente.setTelefono(rs.getString("telefono"));
+        paciente.setEmail(rs.getString("email"));
+        paciente.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
+        return paciente;
     }
 }

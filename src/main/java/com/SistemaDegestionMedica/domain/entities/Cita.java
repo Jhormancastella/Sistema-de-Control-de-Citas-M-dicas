@@ -1,71 +1,73 @@
 package com.SistemaDegestionMedica.domain.entities;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class Cita {
+    private Integer id;
+    private Integer pacienteId;
+    private Integer medicoId;
+    private LocalDateTime fechaHora;
+    private String estado;
 
-    public Cita(Object object, int pacienteId, int medicoId, LocalDateTime fechaHora, String string) {
-        //TODO Auto-generated constructor stub
+    public Cita() {}
+
+    public Cita(Integer id, Integer pacienteId, Integer medicoId, LocalDateTime fechaHora, String estado) {
+        this.id = id;
+        this.pacienteId = pacienteId;
+        this.medicoId = medicoId;
+        this.fechaHora = fechaHora;
+        this.estado = estado;
     }
 
-    public Cita() {
-        //TODO Auto-generated constructor stub
+    // Getters y Setters
+    public Integer getId() {
+        return id;
     }
 
-    public int getMedicoId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMedicoId'");
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getPacienteId() {
+        return pacienteId;
+    }
+
+    public void setPacienteId(Integer pacienteId) {
+        this.pacienteId = pacienteId;
+    }
+
+    public Integer getMedicoId() {
+        return medicoId;
+    }
+
+    public void setMedicoId(Integer medicoId) {
+        this.medicoId = medicoId;
+    }
+
+    public LocalDateTime getFechaHora() {
+        return fechaHora;
+    }
+
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora;
     }
 
     public String getEstado() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEstado'");
+        return estado;
     }
 
-    public int getPacienteId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPacienteId'");
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
-    public String getFechaHora() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFechaHora'");
+    @Override
+    public String toString() {
+        return "Cita{" +
+                "id=" + id +
+                ", pacienteId=" + pacienteId +
+                ", medicoId=" + medicoId +
+                ", fechaHora=" + fechaHora +
+                ", estado='" + estado + '\'' +
+                '}';
     }
-
-    public int getId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
-    }
-
-    public void setId(int int1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setId'");
-    }
-
-    public void setFechaHora(LocalDateTime nuevaFechaHora) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setFechaHora'");
-    }
-
-    public void setId(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setId'");
-    }
-
-    public void setPacienteId(String pacienteId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPacienteId'");
-    }
-
-    public void setMedicoId(String medicoId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setMedicoId'");
-    }
-
-    public void setEstado(Object estado) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setEstado'");
-    }
-
 }

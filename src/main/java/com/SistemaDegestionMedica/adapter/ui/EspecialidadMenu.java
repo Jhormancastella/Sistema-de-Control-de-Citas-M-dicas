@@ -11,9 +11,9 @@ public class EspecialidadMenu {
     private final EspecialidadService especialidadService;
     private final Scanner scanner;
 
-    public EspecialidadMenu(EspecialidadService especialidadService, Scanner scanner) {
+    public EspecialidadMenu(EspecialidadService especialidadService) {
         this.especialidadService = especialidadService;
-        this.scanner = scanner;
+        this.scanner = new Scanner(System.in); // Inicialización correcta
     }
 
     public void mostrarMenu() {
@@ -28,7 +28,7 @@ public class EspecialidadMenu {
             System.out.print("Seleccione una opción: ");
 
             int opcion = scanner.nextInt();
-            scanner.nextLine(); // Consumir el salto de línea
+            scanner.nextLine(); 
 
             switch (opcion) {
                 case 1:
@@ -79,14 +79,14 @@ public class EspecialidadMenu {
     private void buscarEspecialidadPorId() {
         System.out.print("\nIngrese el ID de la especialidad: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-
-        Optional<Especialidad> especialidadOpt = especialidadService.crearEspecialidad(id);
+        scanner.nextLine(); 
+    
+        Optional<Especialidad> especialidadOpt = especialidadService.buscarEspecialidadPorId(id);
         if (especialidadOpt.isEmpty()) {
             System.out.println("Especialidad no encontrada.");
             return;
         }
-
+    
         Especialidad especialidad = especialidadOpt.get();
         System.out.println("\n--- DETALLES DE LA ESPECIALIDAD ---");
         System.out.println("ID: " + especialidad.getId());
@@ -96,13 +96,9 @@ public class EspecialidadMenu {
     private void actualizarEspecialidad() {
         System.out.print("\nIngrese el ID de la especialidad a actualizar: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-
-        Optional<Especialidad> especialidadOpt = especialidadService.crearEspecialidad(id);
-        if (especialidadOpt.isEmpty()) {
-            System.out.println("Especialidad no encontrada.");
-            return;
-        }
+        scanner.nextLine(); 
+    
+        Optional<Especialidad> especialidadOpt = especialidadService.buscarEspecialidadPorId(id);
 
         Especialidad especialidad = especialidadOpt.get();
         System.out.println("\n--- ACTUALIZAR ESPECIALIDAD ---");
@@ -119,13 +115,10 @@ public class EspecialidadMenu {
     private void eliminarEspecialidad() {
         System.out.print("\nIngrese el ID de la especialidad a eliminar: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-
-        Optional<Especialidad> especialidadOpt = especialidadService.crearEspecialidad(id);
-        if (especialidadOpt.isEmpty()) {
-            System.out.println("Especialidad no encontrada.");
-            return;
-        }
+        scanner.nextLine(); 
+    
+        Optional<Especialidad> especialidadOpt = especialidadService.buscarEspecialidadPorId(id);
+    
 
         especialidadService.eliminarEspecialidad(id);
         System.out.println("Especialidad eliminada exitosamente.");

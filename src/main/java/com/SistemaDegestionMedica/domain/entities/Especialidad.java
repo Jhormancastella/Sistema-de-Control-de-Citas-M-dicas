@@ -1,38 +1,36 @@
 package com.SistemaDegestionMedica.domain.entities;
 
 public class Especialidad {
+    private Integer id;
+    private String nombre;
 
-    public Especialidad(Object object, String nombre, String string) {
-        //TODO Auto-generated constructor stub
+    public Especialidad(Integer id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
     }
 
-    public Especialidad(Object object, String nombre) {
-        //TODO Auto-generated constructor stub
+    // Getters y Setters
+    public Integer getId() {
+        return id;
     }
 
-    public float getId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getNombre() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNombre'");
+        return nombre;
     }
 
     public void setNombre(String nombre) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setNombre'");
+        this.nombre = nombre;
     }
 
-    public String getDescripcion() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDescripcion'");
+    @Override
+    public String toString() {
+        return "Especialidad{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                '}';
     }
-
-    public void setId(int int1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setId'");
-    }
-
 }

@@ -12,13 +12,13 @@ import com.SistemaDegestionMedica.application.usecase.MedicoService;
 import com.SistemaDegestionMedica.application.usecase.PacienteService;
 import com.SistemaDegestionMedica.infrastructure.database.ConnectionDb;
 import com.SistemaDegestionMedica.infrastructure.database.ConnectionFactory;
+import com.SistemaDegestionMedica.util.Validador;
 
 public class MainMenu {
     private final PacienteService pacienteService;
     private final MedicoService medicoService;
     private final EspecialidadService especialidadService;
     private final CitaService citaService;
-    private final Scanner scanner;
     private boolean primeraVez = true;
 
     public MainMenu() {
@@ -27,7 +27,6 @@ public class MainMenu {
         this.medicoService = inicializarMedicoService(connectionDb);
         this.especialidadService = inicializarEspecialidadService(connectionDb);
         this.citaService = inicializarCitaService(connectionDb);
-        this.scanner = new Scanner(System.in);
     }
     
     private ConnectionDb inicializarConexion() {
@@ -76,30 +75,29 @@ public class MainMenu {
             System.out.println("3. Gestión de Especialidades");
             System.out.println("4. Gestión de Citas");
             System.out.println("5. Salir");
-            System.out.print("Seleccione una opción: ");
-
-            int opcion = scanner.nextInt();
-            scanner.nextLine(); 
+            
+            // Usando Validador para la opción del menú
+            int opcion = Validador.validarEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1:
-                    new PacienteMenu(pacienteService, scanner).mostrarMenu();
+                    new PacienteMenu(pacienteService).mostrarMenu();
                     break;
                 case 2:
-                    new MedicoMenu(medicoService, especialidadService, scanner).mostrarMenu();
+                    new MedicoMenu(medicoService, especialidadService).mostrarMenu();
                     break;
                 case 3:
-                    new EspecialidadMenu(especialidadService, scanner).mostrarMenu();
+                    new EspecialidadMenu(especialidadService).mostrarMenu();
                     break;
                 case 4:
-                    new CitaMenu(citaService, pacienteService, medicoService, scanner).mostrarMenu();
+                    new CitaMenu(citaService, pacienteService, medicoService).mostrarMenu();
                     break;
                 case 5:
                     System.out.println("Saliendo del sistema...");
-                    scanner.close();
                     return;
                 default:
                     System.out.println("Opción no válida. Intente de nuevo.");
+                    Validador.presioneParaContinuar();
             }
         }
     }
@@ -109,10 +107,8 @@ public class MainMenu {
             String os = System.getProperty("os.name").toLowerCase();
 
             if (os.contains("win")) {
-                // Para Windows
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             } else {
-                // Para Unix/Linux/Mac
                 System.out.print("\033[H\033[2J");
                 System.out.flush();
             }
@@ -127,7 +123,8 @@ public class MainMenu {
         } catch (Exception e) {
             System.err.println("Se produjo un error inesperado:");
             System.err.println(e.getMessage());
-            e.printStackTrace();
+            System.err.println("Presione Enter para salir...");
+            new Scanner(System.in).nextLine();
             System.exit(1);
         }
     }

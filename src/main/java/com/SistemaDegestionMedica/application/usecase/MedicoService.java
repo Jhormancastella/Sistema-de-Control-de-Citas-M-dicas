@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.SistemaDegestionMedica.MedicoRepository;
-import com.SistemaDegestionMedica.domain.entities.Medico;
+import com.SistemaDegestionMedica.domain.Medico;
 
 public class MedicoService {
     private final MedicoRepository medicoRepository;
@@ -30,7 +30,6 @@ public class MedicoService {
     }
 
     public void eliminarMedico(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminarMedico'");
+        medicoRepository.deleteById(id);
     }
 }

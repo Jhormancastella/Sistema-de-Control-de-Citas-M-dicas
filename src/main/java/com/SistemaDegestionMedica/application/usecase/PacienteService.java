@@ -1,5 +1,6 @@
 package com.SistemaDegestionMedica.application.usecase;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,34 +8,53 @@ import com.SistemaDegestionMedica.PacienteRepository;
 import com.SistemaDegestionMedica.domain.entities.Paciente;
 
 public class PacienteService {
+    private final PacienteRepository pacienteRepo;
 
     public PacienteService(PacienteRepository pacienteRepo) {
-        //TODO Auto-generated constructor stub
+        this.pacienteRepo = pacienteRepo;
     }
 
     public Paciente crearPaciente(Paciente paciente) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'crearPaciente'");
+        try {
+            return pacienteRepo.save(paciente);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al crear paciente", e);
+        }
     }
 
     public Optional<Paciente> obtenerPaciente(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'obtenerPaciente'");
+        try {
+            return pacienteRepo.findById(id);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener paciente con ID: " + id, e);
+        }
     }
 
     public void actualizarPaciente(Paciente paciente) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actualizarPaciente'");
+        try {
+            pacienteRepo.update(paciente);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar paciente", e);
+        }
     }
 
     public List<Paciente> listarPacientes() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listarPacientes'");
+        try {
+            return pacienteRepo.findAll();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al listar pacientes", e);
+        }
     }
 
     public void eliminarPaciente(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminarPaciente'");
+        try {
+            pacienteRepo.delete(id);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al eliminar paciente con ID: " + id, e);
+        }
     }
 
+    public void registrarPaciente(Paciente nuevoPaciente) {
+        this.crearPaciente(nuevoPaciente);
+    }
 }

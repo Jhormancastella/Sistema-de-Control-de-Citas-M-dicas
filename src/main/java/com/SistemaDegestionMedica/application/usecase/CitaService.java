@@ -1,14 +1,13 @@
 package com.SistemaDegestionMedica.application.usecase;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import com.SistemaDegestionMedica.CitaRepository;
 import com.SistemaDegestionMedica.MedicoRepository;
 import com.SistemaDegestionMedica.PacienteRepository;
-import com.SistemaDegestionMedica.adapter.ui.CitaMenu;
 import com.SistemaDegestionMedica.domain.entities.Cita;
 
 public class CitaService {
@@ -33,52 +32,82 @@ public class CitaService {
     }
 
     public boolean cancelarCita(int id) {
-        citaRepository.delete(id);
+        Optional<Cita> citaOpt = citaRepository.findById(id);
+        if (citaOpt.isPresent()) {
+            Cita cita = citaOpt.get();
+            cita.setEstado("Cancelada");
+            citaRepository.update(cita);
+            return true;
+        }
+        return false;
     }
 
-    public Cita agendarCita(Cita cita) {
+    public Cita agendarCita(Cita cita) throws IllegalArgumentException, SQLException {
         // Validar que el paciente existe
         pacienteRepository.findById(cita.getPacienteId())
-            .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
+            .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + cita.getPacienteId()));
         
         // Validar que el médico existe
         medicoRepository.findById(cita.getMedicoId())
-            .orElseThrow(() -> new IllegalArgumentException("Médico no encontrado"));
+            .orElseThrow(() -> new IllegalArgumentException("Médico no encontrado con ID: " + cita.getMedicoId()));
         
         // Validar disponibilidad del médico
         if (!citaRepository.isMedicoDisponible(cita.getMedicoId(), cita.getFechaHora())) {
             throw new IllegalStateException("El médico no está disponible en ese horario");
         }
         
+        // Establecer estado por defecto si no viene especificado
+        if (cita.getEstado() == null || cita.getEstado().isEmpty()) {
+            cita.setEstado("Programada");
+        }
+        
         return citaRepository.save(cita);
     }
 
     public Cita reprogramarCita(int id, LocalDateTime nuevaFechaHora) {
-        CitaMenu cita = citaRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
+        Cita cita = citaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada con ID: " + id));
         
-        // Validar disponibilidad del médico
+        // Validar que la nueva fecha no sea en el pasado
+        if (nuevaFechaHora.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("No se puede programar una cita en el pasado");
+        }
+        
+        // Validar disponibilidad del médico en el nuevo horario
         if (!citaRepository.isMedicoDisponible(cita.getMedicoId(), nuevaFechaHora)) {
             throw new IllegalStateException("El médico no está disponible en el nuevo horario");
         }
         
         cita.setFechaHora(nuevaFechaHora);
+        cita.setEstado("Reprogramada");
+        
         return citaRepository.update(cita);
     }
 
-    public List<Cita> listarCitasPorPaciente(int pacienteId) {
+    public List<Cita> listarCitasPorPaciente(int pacienteId) throws IllegalArgumentException, SQLException {
+        // Validar que el paciente existe
+        pacienteRepository.findById(pacienteId)
+            .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + pacienteId));
+        
         return citaRepository.findByPacienteId(pacienteId);
     }
 
     public List<Cita> listarCitasPorMedico(int medicoId) {
+        // Validar que el médico existe
+        medicoRepository.findById(medicoId)
+            .orElseThrow(() -> new IllegalArgumentException("Médico no encontrado con ID: " + medicoId));
+        
         return citaRepository.findByMedicoId(medicoId);
     }
 
-    public Cita reprogramarCita(int id, Date nuevaFechaHora) {
-        LocalDateTime localDateTime = new Date(nuevaFechaHora.getTime())
-            .toInstant()
-            .atZone(java.time.ZoneId.systemDefault())
-            .toLocalDateTime();
-        return reprogramarCita(id, localDateTime);
+    public List<Cita> listarCitasPorEstado(String estado) {
+        // Validar que el estado sea válido
+        if (!List.of("Programada", "Confirmada", "Cancelada", "Completada").contains(estado)) {
+            throw new IllegalArgumentException("Estado de cita no válido: " + estado);
+        }
+        
+        return citaRepository.findAll().stream()
+            .filter(c -> c.getEstado().equalsIgnoreCase(estado))
+            .toList();
     }
 }

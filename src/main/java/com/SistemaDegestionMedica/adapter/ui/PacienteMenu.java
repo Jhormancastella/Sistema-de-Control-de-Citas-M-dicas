@@ -12,9 +12,10 @@ public class PacienteMenu {
     private final PacienteService pacienteService;
     private final Scanner scanner;
 
-    public PacienteMenu(PacienteService pacienteService, Scanner scanner) {
+    public PacienteMenu(PacienteService pacienteService) {
         this.pacienteService = pacienteService;
-        this.scanner = scanner;
+        this.scanner = new Scanner(System.in); // Inicialización correcta del Scanner
+    // scanner = new Scanner(System.in); // Inicialización correcta del Scanner
     }
 
     public void mostrarMenu() {
@@ -57,23 +58,29 @@ public class PacienteMenu {
 
     private void registrarPaciente() {
         System.out.println("\n--- REGISTRAR NUEVO PACIENTE ---");
-        System.out.print("Documento: ");
-        String documento = scanner.nextLine();
         System.out.print("Nombre: ");
         String nombre = scanner.nextLine();
         System.out.print("Apellido: ");
         String apellido = scanner.nextLine();
+        System.out.print("Documento: ");
+        String documento = scanner.nextLine();
         System.out.print("Fecha de nacimiento (YYYY-MM-DD): ");
-        String fechaStr = scanner.nextLine();
-        LocalDate fechaNacimiento = LocalDate.parse(fechaStr);
-        System.out.print("Género: ");
-        String genero = scanner.nextLine();
-        System.out.print("Dirección: ");
-        String direccion = scanner.nextLine();
+        LocalDate fechaNacimiento = LocalDate.parse(scanner.nextLine());
         System.out.print("Teléfono: ");
         String telefono = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
+    
+        Paciente nuevoPaciente = new Paciente();
+        nuevoPaciente.setNombre(nombre);
+        nuevoPaciente.setApellido(apellido);
+        nuevoPaciente.setDocumento(documento);
+        nuevoPaciente.setFechaNacimiento(fechaNacimiento);
+        nuevoPaciente.setTelefono(telefono);
+        nuevoPaciente.setEmail(email);
+    
+        pacienteService.registrarPaciente(nuevoPaciente);
+        System.out.println("Paciente registrado exitosamente.");
     }
 
     private void listarPacientes() {
@@ -107,8 +114,6 @@ public class PacienteMenu {
         System.out.println("Documento: " + paciente.getDocumento());
         System.out.println("Nombre: " + paciente.getNombre() + " " + paciente.getApellido());
         System.out.println("Fecha de nacimiento: " + paciente.getFechaNacimiento());
-        System.out.println("Género: " + paciente.getGenero());
-        System.out.println("Dirección: " + paciente.getDireccion());
         System.out.println("Teléfono: " + paciente.getTelefono());
         System.out.println("Email: " + paciente.getEmail());
     }
@@ -142,14 +147,6 @@ public class PacienteMenu {
         System.out.print("Nueva fecha de nacimiento (" + paciente.getFechaNacimiento() + ", YYYY-MM-DD): ");
         String fechaStr = scanner.nextLine();
         if (!fechaStr.isEmpty()) paciente.setFechaNacimiento(LocalDate.parse(fechaStr));
-
-        System.out.print("Nuevo género (" + paciente.getGenero() + "): ");
-        String genero = scanner.nextLine();
-        if (!genero.isEmpty()) paciente.setGenero(genero);
-
-        System.out.print("Nueva dirección (" + paciente.getDireccion() + "): ");
-        String direccion = scanner.nextLine();
-        if (!direccion.isEmpty()) paciente.setDireccion(direccion);
 
         System.out.print("Nuevo teléfono (" + paciente.getTelefono() + "): ");
         String telefono = scanner.nextLine();
